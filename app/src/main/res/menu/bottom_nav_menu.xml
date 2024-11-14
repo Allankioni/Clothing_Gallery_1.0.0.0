@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_shirts"
+        android:icon="@drawable/shirt"
+        android:title="Shirts"
+        android:tooltipText="Shirts" />
+
+    <item
+        android:id="@+id/nav_trousers"
+        android:icon="@drawable/trousers"
+        android:title="Trousers" />
+
+    <item
+        android:id="@+id/nav_dresses"
+        android:icon="@drawable/dress"
+        android:title="Dresses"
+        android:titleCondensed="Dresses"/>
+
+</menu>

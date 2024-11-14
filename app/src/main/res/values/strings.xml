@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TOMM LEO</string>
+
+    <string name="category_children">Children</string>
+    <string name="category_adults">Adults</string>
+    <string name="subcategory_shirts">Shirts</string>
+    <string name="subcategory_trousers">Trousers</string>
+    <string name="subcategory_dresses">Dresses</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="error_saving_image">Error saving image</string>
+    <string name="choose_category">Choose Category</string>
+    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_video">Hello ITS KIONI</string>
+    <string name="action_share">Share</string>
+    <string name="title_activity_ey_main">eyMainActivity</string>
+</resources>
