@@ -16,17 +16,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/download"
+        android:icon="@drawable/tomm_leo_logo"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/download"
+        android:roundIcon="@drawable/tomm_leo_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoOrganizer"
         tools:targetApi="31" >
-        <activity
-            android:name=".eyMainActivity"
-            android:exported="false"
-            android:label="@string/title_activity_ey_main"
-            android:theme="@style/Theme.PhotoOrganizer" />
         <activity
             android:name=".VideoActivity"
             android:exported="false"
@@ -55,7 +50,7 @@
             android:label="Welcome"
             android:parentActivityName=".Category.MainActivity" />
         <activity
-            android:name=".FullscreenPhotoActivity"
+            android:name=".Fullscreen.FullscreenPhotoActivity"
             android:parentActivityName=".Subcategory.BottomNavActivity"
             android:theme="@style/Theme.PhotoOrganizer.FullScreen" />
 

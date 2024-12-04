@@ -91,4 +91,6 @@ dependencies {
 
     implementation("com.github.ismaeldivita:chip-navigation-bar:1.3.4")
 
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
 }

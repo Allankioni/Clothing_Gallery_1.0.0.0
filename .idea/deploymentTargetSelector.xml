@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-14T00:41:20.699733500Z">
+        <DropdownSelection timestamp="2024-12-01T16:37:57.283058600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=11211153B2016978" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Hp\.android\avd\Nokia_Android_Pie.avd" />
             </handle>
           </Target>
         </DropdownSelection>

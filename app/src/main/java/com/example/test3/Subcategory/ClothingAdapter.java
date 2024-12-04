@@ -16,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.test3.FullscreenPhotoActivity;
+import com.example.test3.Category.Category;
+import com.example.test3.Fullscreen.FullscreenPhotoActivity;
 import com.example.test3.R;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ClothingAdapter extends RecyclerView.Adapter<ClothingAdapter.ViewHo
         if (clothingItem.isHasValidImage()){
             Glide.with(context)
                     .load(Uri.parse(clothingItem.getImageUri()))
-                    .placeholder(R.drawable.download)
+                    .placeholder(R.drawable.place_holder)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
         }else {
@@ -91,6 +92,29 @@ public class ClothingAdapter extends RecyclerView.Adapter<ClothingAdapter.ViewHo
     public int getItemCount() {
         return clothingList.size();
     }
+
+    public void selectAll() {
+        for (int i = 0; i < clothingList.size(); i++) {
+            selectedItems.put(i, true);
+        }
+        notifyDataSetChanged();
+        if (context instanceof BottomNavActivity) {
+            ((BottomNavActivity) context).updateSelectionCount(getSelectedItemCount());
+        }
+    }
+
+    public void deselectAll() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+        if (context instanceof BottomNavActivity) {
+            ((BottomNavActivity) context).updateSelectionCount(0);
+        }
+    }
+
+    public boolean areAllItemsSelected() {
+        return selectedItems.size() == clothingList.size();
+    }
+
 
     public void updateData(List<ClothingItem> newList) {
         clothingList.clear();

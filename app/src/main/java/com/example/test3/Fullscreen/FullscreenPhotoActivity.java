@@ -1,6 +1,4 @@
-package com.example.test3;
-
-import static androidx.core.content.ContextCompat.startActivity;
+package com.example.test3.Fullscreen;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -37,6 +35,7 @@ public class FullscreenPhotoActivity extends AppCompatActivity {
     private ActivityFullscreenPhotoBinding binding;
     private String photoUrl;
     private Bitmap currentBitmap;
+    private int Position;
     private boolean isImageLoaded = false;
 
     @Override
@@ -55,6 +54,7 @@ public class FullscreenPhotoActivity extends AppCompatActivity {
         loadImage();
         setupPhotoView();
     }
+
 
     private void setupFullscreenUI() {
         View decorView = getWindow().getDecorView();
