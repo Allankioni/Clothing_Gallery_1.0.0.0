@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.test3.Category.Category;
 import com.example.test3.Fullscreen.FullscreenPhotoActivity;
 import com.example.test3.R;
 

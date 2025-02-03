@@ -1,4 +1,4 @@
-package com.example.test3;
+package com.example.test3.Images;
 
 import android.annotation.SuppressLint;
 
@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.test3.R;
 import com.example.test3.databinding.ActivityFullscreenImageBinding;
 
 /**

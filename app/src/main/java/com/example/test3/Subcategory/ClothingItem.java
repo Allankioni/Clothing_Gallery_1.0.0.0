@@ -9,6 +9,7 @@ public class ClothingItem {
     private String imageUri;
     private boolean hasValidImage;
     private boolean isPlaceholder;
+    private String timestamp;
 
     public ClothingItem() {
         // Required empty constructor for Firebase
@@ -68,5 +69,9 @@ public class ClothingItem {
 
     public void setImageUri(String imageUri) {
         this.imageUri = imageUri;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

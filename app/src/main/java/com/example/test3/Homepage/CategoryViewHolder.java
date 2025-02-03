@@ -1,7 +1,6 @@
-package com.example.test3.Category;
+package com.example.test3.Homepage;
 
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 

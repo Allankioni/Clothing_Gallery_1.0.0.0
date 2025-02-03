@@ -3,6 +3,7 @@ package com.example.test3.Subcategory;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -17,13 +18,11 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.view.ActionMode;
 
 import com.example.test3.R;
 import com.example.test3.databinding.ActivityBottomNavBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AlertDialog;
@@ -31,7 +30,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuInflater;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,23 +41,19 @@ import java.util.List;
 
 // BottomNavActivity.java
 public class BottomNavActivity extends AppCompatActivity {
+
     private static final int PICK_IMAGES_REQUEST = 101;
     private ActivityBottomNavBinding binding;
     private String mainCategory;
-    RecyclerView recyclerView;
-    FloatingActionButton fab;
+    private RecyclerView recyclerView;
+    private FloatingActionButton fab;
     private DatabaseHelper1 dbHelper;
     private ClothingAdapter adapter;
-    private String currentSubCategory = "shirt"; // Default category
     private static final int PICK_IMAGE_REQUEST = 1;
     private ActionMode actionMode;
-    private String currentType;
     private MenuItem selectAllMenuItem;
+    private String selectedGroupName;
 
-    private TextView selectionCountTextView;
-
-    private String categoryId;
-    private String categoryName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,73 +62,43 @@ public class BottomNavActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         mainCategory = getIntent().getStringExtra("CATEGORY_TYPE");
-        if (mainCategory ==null){
+        if (mainCategory == null) {
             mainCategory = "Adults";
         }
         dbHelper = new DatabaseHelper1(this);
 
-        // Retrieve intent extras
-//        Intent intent = getIntent();
-//        categoryId = intent.getStringExtra("CATEGORY_ID");
-//        categoryName = intent.getStringExtra("CATEGORY_NAME");
+        selectedGroupName = getIntent().getStringExtra("SELECTED_GROUP_NAME");
 
-//        if (categoryId == null || categoryName == null) {
-//            Log.e("BottomNavActivity", " or name is null");
-//            Toast.makeText(this, "Error: Category data is missing.", Toast.LENGTH_SHORT).show();
-//            finish();  // Close activity if data is missing
-//            return;
-//        }
         setupRecyclerView();
-        setupBottomNavigation();
         setupFab();
-
     }
 
     private void setupRecyclerView() {
-//        Cursor cursor = dbHelper.getClothingByType(getIntent().getStringExtra("type"));
-        RecyclerView recyclerView = findViewById(R.id.photos_recycler_view);
+        recyclerView = findViewById(R.id.photos_recycler_view);
         adapter = new ClothingAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        loadClothingItems(currentSubCategory);
+        loadClothingItems(mainCategory, selectedGroupName);
     }
-    private void setupBottomNavigation() {
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_view);
-        bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_shirts) {
-                item.setChecked(true);
-                currentSubCategory = "shirt";
-            } else if (id == R.id.nav_trousers) {
-                item.setChecked(true);
-                currentSubCategory = "trouser";
-            } else if (id == R.id.nav_dresses) {
-                item.setChecked(true);
-                currentSubCategory = "dress";
-            }
-            loadClothingItems(currentSubCategory);
-            return true;
-        });
-    }
+
     private void setupFab() {
-        FloatingActionButton fab = findViewById(R.id.fab_add_photo);
+        fab = findViewById(R.id.fab_add_photo);
         fab.setOnClickListener(v -> openImagePicker());
     }
+
     private void openImagePicker() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);  // Enable multiple selection
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Pictures"), PICK_IMAGES_REQUEST);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGES_REQUEST && resultCode == RESULT_OK && data != null) {
-            // Handle multiple images
             if (data.getClipData() != null) {
-                // Multiple images selected
                 ClipData clipData = data.getClipData();
                 int totalImages = clipData.getItemCount();
 
@@ -143,74 +107,69 @@ public class BottomNavActivity extends AppCompatActivity {
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMax(totalImages);
                 progressDialog.show();
+
                 new Thread(() -> {
                     for (int i = 0; i < totalImages; i++) {
                         Uri imageUri = clipData.getItemAt(i).getUri();
-                        saveImageToDatabase(imageUri);
+                        saveImageToDatabase(imageUri, mainCategory, selectedGroupName);
 
                         int finalI = i;
                         runOnUiThread(() -> {
                             progressDialog.setProgress(finalI + 1);
                             if (finalI == totalImages - 1) {
                                 progressDialog.dismiss();
-                                loadClothingItems(currentSubCategory);
+                                loadClothingItems(mainCategory, selectedGroupName);
                             }
                         });
                     }
-
                 }).start();
             } else if (data.getData() != null) {
-                // Single image selected
                 Uri imageUri = data.getData();
-                saveImageToDatabase(imageUri);
-                loadClothingItems(currentSubCategory);
+                saveImageToDatabase(imageUri, mainCategory, selectedGroupName);
+                loadClothingItems(mainCategory, selectedGroupName);
             }
-            // Reload the current category
-
         }
     }
 
     @SuppressLint("Range")
-    private void loadClothingItems(String subCategory) {
+    private void loadClothingItems(String mainCategory, String selectedGroupName) {
         List<ClothingItem> items = new ArrayList<>();
-        Cursor cursor = dbHelper.getClothingByType(subCategory, mainCategory);
-        while (cursor.moveToNext()) {
-            ClothingItem item = new ClothingItem();
-            item.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper1.COLUMN_ID)));
-            item.setType(cursor.getString(cursor.getColumnIndex(DatabaseHelper1.COLUMN_TYPE)));
-            item.setImageUri(cursor.getString(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
-            item.setHasValidImage(!cursor.isNull(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
-            items.add(item);
+
+        if (selectedGroupName != null) {
+            Cursor cursor = dbHelper.getItemsByGroupAndCategory(mainCategory, selectedGroupName);
+
+            while (cursor.moveToNext()) {
+                ClothingItem item = new ClothingItem();
+                item.setId(cursor.getLong(cursor.getColumnIndex(DatabaseHelper1.COLUMN_ID)));
+                item.setImageUri(cursor.getString(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
+                item.setHasValidImage(!cursor.isNull(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
+                // ... (
+                items.add(item);
+            }
+
+            cursor.close();
+        } else {
+            Cursor cursor = dbHelper.getAllItemsByCategory(mainCategory);
+
+            while (cursor.moveToNext()) {
+                ClothingItem item = new ClothingItem();
+                item.setId(cursor.getLong(cursor.getColumnIndex(DatabaseHelper1.COLUMN_ID)));
+                item.setImageUri(cursor.getString(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
+                item.setHasValidImage(!cursor.isNull(cursor.getColumnIndex(DatabaseHelper1.COLUMN_IMAGE_URI)));
+                // ... (add other relevant data to ClothingItem) ...
+                items.add(item);
+            }
+
+            cursor.close();
         }
-        cursor.close();
-//        try {
-//            // These will throw an exception if columns don't exist
-//            int idIndex = cursor.getColumnIndexOrThrow(DatabaseHelper1.COLUMN_ID);
-//            int typeIndex = cursor.getColumnIndexOrThrow(DatabaseHelper1.COLUMN_TYPE);
-//            int uriIndex = cursor.getColumnIndexOrThrow(DatabaseHelper1.COLUMN_IMAGE_URI);
-//
-//            while (cursor.moveToNext()) {
-//                ClothingItem item = new ClothingItem();
-//                item.setId(cursor.getInt(idIndex));
-//                item.setType(cursor.getString(typeIndex));
-//                item.setImageUri(cursor.getString(uriIndex));
-//                items.add(item);
-//            }
-//        } catch (IllegalArgumentException e) {
-//            // Handle missing columns
-//            Log.e("Database", "Column not found in database", e);
-//        } finally {
-//            cursor.close();
-//        }
+
         adapter.updateData(items);
     }
 
-    private void saveImageToDatabase(Uri imageUri) {
+    private void saveImageToDatabase(Uri imageUri, String mainCategory, String selectedGroupName) {
         try {
-            // Optional: Make a persistent copy of the image
             String persistentUri = makeImagePersistent(imageUri);
-            // Save to database
-            dbHelper.insertClothing(currentSubCategory, mainCategory, persistentUri);
+            dbHelper.insertItem(mainCategory, persistentUri, selectedGroupName);
         } catch (Exception e) {
             Log.e("BottomNavActivity", "Error saving image", e);
             Toast.makeText(this, "Error saving image", Toast.LENGTH_SHORT).show();
@@ -224,7 +183,6 @@ public class BottomNavActivity extends AppCompatActivity {
                 System.currentTimeMillis() + ".jpg");
         destFile.getParentFile().mkdirs(); // Create directories if they don't exist
 
-        // Copy the image
         try (InputStream in = getContentResolver().openInputStream(sourceUri);
              OutputStream out = new FileOutputStream(destFile)) {
             byte[] buffer = new byte[4096];
@@ -265,7 +223,7 @@ public class BottomNavActivity extends AppCompatActivity {
                             adapter.selectAll();
                             selectAllMenuItem.setIcon(R.drawable.baseline_deselect_24);
                         }
-                    } else if (item.getItemId()== R.id.action_delete) {
+                    } else if (item.getItemId() == R.id.action_delete) {
                         deleteSelectedItems();
                         return true;
                     }
@@ -280,6 +238,7 @@ public class BottomNavActivity extends AppCompatActivity {
             });
         }
     }
+
     private void deleteSelectedItems() {
         List<Long> selectedIds = adapter.getSelectedItemIds();
         if (selectedIds.isEmpty()) {
@@ -334,7 +293,7 @@ public class BottomNavActivity extends AppCompatActivity {
                     }
 
                     // Refresh the data
-                    loadClothingItems(currentSubCategory);
+                    loadClothingItems(mainCategory, selectedGroupName);
 
                     if (actionMode != null) {
                         actionMode.finish();
@@ -358,9 +317,9 @@ public class BottomNavActivity extends AppCompatActivity {
 
             //update select all icon based on selection state
             if (selectAllMenuItem != null) {
-                if (adapter.areAllItemsSelected()){
+                if (adapter.areAllItemsSelected()) {
                     selectAllMenuItem.setIcon(R.drawable.baseline_deselect_24);
-                }else {
+                } else {
                     selectAllMenuItem.setIcon(R.drawable.ic_select_all);
                 }
             }

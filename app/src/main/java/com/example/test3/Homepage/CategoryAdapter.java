@@ -1,7 +1,6 @@
-package com.example.test3.Category;
+package com.example.test3.Homepage;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.test3.R;
-import com.example.test3.Subcategory.BottomNavActivity;
 
 import java.util.List;
 
 // CategoryAdapter.java
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder>{
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder> {
     List<Category> categories;
     Context context;
     private final SelecteCategoryListener listener;
@@ -38,23 +36,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder>{
         holder.nameTextView.setText(category.getName());
         holder.imageView.setImageResource(category.getImageUrl());
 
-
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                listener.onCategorySelected(category);
-
-            }
-        });
-//
-//        holder.cardView.setOnClickListener(View ->{
-//            Intent intent = new Intent(context, BottomNavActivity.class);
-//            intent.putExtra("CATEGORY_TYPE", category.getName());
-//            context.startActivity(intent);
-//        });
-
-
+        holder.cardView.setOnClickListener(view -> listener.onCategorySelected(category));
     }
 
     @Override
@@ -66,5 +48,4 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder>{
         this.categories = categories;
         notifyDataSetChanged();
     }
-
 }

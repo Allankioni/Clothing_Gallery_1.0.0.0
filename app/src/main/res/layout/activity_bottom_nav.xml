@@ -4,54 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/Theme.PhotoOrganizer"
-    android:background="@drawable/ihbkjb">
-
-    <FrameLayout
+    android:theme="@style/Theme.PhotoOrganizer">
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_nav_view"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/photos_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/primary1_light"
-            android:clipToPadding="true"
-            android:padding="4dp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:background="@color/light_blue_900"
-            android:backgroundTint="@color/unselected_color"
-            android:src="@drawable/ic_add_photo"
-            app:fabSize="normal"
-            tools:ignore="SpeakableTextPresentCheck" />
-
-
-    </FrameLayout>
-
-
-
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav_view"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/adult_default" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photos_recycler_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/primary1_light"
+        android:clipToPadding="true"
+        android:padding="4dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_photo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:theme="@style/Theme.PhotoOrganizer"
-        android:background="@color/default_color"
-        android:backgroundTint="@color/light_blue_A200"
-        android:backgroundTintMode="src_atop"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="50dp"
+        android:background="@color/light_blue_900"
+        android:backgroundTint="@color/unselected_color"
+        android:src="@drawable/ic_add_photo"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        tools:ignore="SpeakableTextPresentCheck" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,28 +16,39 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/tomm_leo_logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/tomm_leo_logo"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoOrganizer"
-        tools:targetApi="31" >
+        tools:targetApi="31"
+        android:enableOnBackInvokedCallback="true">
+
+        <activity
+            android:name=".Groups.AddGroupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Groups.GroupManagementActivity"
+            android:exported="false"
+            android:parentActivityName=".Homepage.MainActivity"
+           />
         <activity
             android:name=".VideoActivity"
             android:exported="false"
             android:label="@string/title_activity_video"
-            android:parentActivityName=".Category.MainActivity" />
+            android:parentActivityName=".Homepage.MainActivity" />
         <activity
-            android:name=".FullscreenImageActivity"
+            android:name=".Images.FullscreenImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
             android:label="@string/title_activity_fullscreen_image"
+            android:parentActivityName=".Subcategory.BottomNavActivity"
             android:theme="@style/Theme.PhotoOrganizer.Fullscreen" />
         <activity
-            android:name=".Category.MainActivity"
+            android:name=".Homepage.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Test3" >
+            android:theme="@style/Theme.Test3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -48,7 +59,7 @@
         <activity
             android:name=".Subcategory.BottomNavActivity"
             android:label="Welcome"
-            android:parentActivityName=".Category.MainActivity" />
+            android:parentActivityName=".Groups.GroupManagementActivity" />
         <activity
             android:name=".Fullscreen.FullscreenPhotoActivity"
             android:parentActivityName=".Subcategory.BottomNavActivity"
@@ -58,7 +69,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.test3.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true" >
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

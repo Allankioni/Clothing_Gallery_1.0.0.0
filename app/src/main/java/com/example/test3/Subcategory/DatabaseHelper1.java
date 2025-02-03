@@ -14,25 +14,38 @@ import java.util.List;
 
 public class DatabaseHelper1 extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "photo_organizer.db";
-    private static final int DATABASE_VERSION = 1;
-    private final Context context;
+    private static final int DATABASE_VERSION = 4;
 
     // Table name and columns
-    public static final String TABLE_CLOTHES = "clothes";
+    private static final String TABLE_ITEMS = "items";
     public static final String COLUMN_ID = "id";
-    public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_CATEGORY = "category";
     public static final String COLUMN_IMAGE_URI = "image_uri";
+    public static final String COLUMN_GROUP_NAME = "group_name";
+    public  static final String COLUMN_GROUP_IMAGE_URI = "group_image_uri";
     public static final String COLUMN_TIMESTAMP = "timestamp";
 
-    private static final String CREATE_CLOTHES_TABLE =
-            "CREATE TABLE " + TABLE_CLOTHES + " (" +
+    private static final String TABLE_GROUPS = "groups";
+    private static final String COLUMN_GROUP_ID = "group_id";
+
+    private static final String CREATE_GROUPS_TABLE =
+            "CREATE TABLE " + TABLE_GROUPS + " (" +
+                    COLUMN_GROUP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_GROUP_NAME + " TEXT NOT NULL, " +
+                    COLUMN_GROUP_IMAGE_URI + " TEXT" +
+                    ")";
+
+    private static final String CREATE_ITEMS_TABLE =
+            "CREATE TABLE " + TABLE_ITEMS + " (" +
                     COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_TYPE + " TEXT NOT NULL, " +
                     COLUMN_CATEGORY + " TEXT NOT NULL, " +
                     COLUMN_IMAGE_URI + " TEXT NOT NULL, " +
+                    COLUMN_GROUP_NAME + " TEXT, " +
+                    COLUMN_GROUP_IMAGE_URI + " TEXT, " +
                     COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
                     ")";
+
+    public final Context context;
 
     public DatabaseHelper1(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,22 +54,79 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_CLOTHES_TABLE);
+        db.execSQL(CREATE_ITEMS_TABLE);
+        db.execSQL(CREATE_GROUPS_TABLE);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLOTHES);
-        onCreate(db);
+        // Handle database schema upgrades if necessary (e.g., if you need to remove the subcategory column)
     }
 
-    // Existing methods remain the same...
+    public Cursor getItemsByGroupAndCategory(String category, String groupName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_CATEGORY + "=? AND " + COLUMN_GROUP_NAME + "=?";
+        String[] selectionArgs = {category, groupName};
+        return db.query(TABLE_ITEMS, null, selection, selectionArgs, null, null, null);
+    }
 
-    /**
-     * Delete a single clothing item by ID
-     * @param id The ID of the item to delete
-     * @return true if deletion was successful
-     */
+    public Cursor getAllItemsByCategory(String category) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_CATEGORY + "=?";
+        String[] selectionArgs = {category};
+        return db.query(TABLE_ITEMS, null, selection, selectionArgs, null, null, null);
+    }
+
+    public long insertItem(String category, String imageUri, String groupName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY, category);
+        values.put(COLUMN_IMAGE_URI, imageUri);
+        values.put(COLUMN_GROUP_NAME, groupName);
+        long newRowId = db.insert(TABLE_ITEMS, null, values);
+        db.close();
+        return newRowId;
+    }
+
+    public long addGroup(String groupName, String groupImageUri, String dummyCategory) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY, dummyCategory);
+        values.put(COLUMN_GROUP_NAME, groupName);
+        values.put(COLUMN_GROUP_IMAGE_URI, groupImageUri);
+        Log.d("DatabaseHelper1", "Inserting group_image_uri: " + groupImageUri);
+
+        long groupId = db.insert(TABLE_GROUPS, null, values);
+        db.close();
+        return groupId;
+    }
+    public boolean deleteGroup(String groupName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_ITEMS, COLUMN_GROUP_NAME + "=?", new String[]{groupName});
+        return rowsDeleted > 0;
+    }
+    public List<String> getAllGroupNames() {
+        List<String> groupNames = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT DISTINCT " + COLUMN_GROUP_NAME + " FROM " + TABLE_ITEMS;
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            String groupName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GROUP_NAME));
+            if (groupName != null) {
+                groupNames.add(groupName);
+            }
+        }
+
+        cursor.close();
+        return groupNames;
+    }
+        /**
+         * Delete a single clothing item by ID
+         * @param id The ID of the item to delete
+         * @return true if deletion was successful
+         */
     public boolean deleteClothing(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
         boolean success = false;
@@ -69,7 +139,7 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
             success = deleteImageFile(imageUri);
 
             // Delete database entry regardless of file deletion success
-            int rowsDeleted = db.delete(TABLE_CLOTHES,
+            int rowsDeleted = db.delete(TABLE_ITEMS,
                     COLUMN_ID + "=?",
                     new String[]{String.valueOf(id)});
 
@@ -113,10 +183,10 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
         if (type == null ) {
             throw new IllegalArgumentException("typeId cannot be null");
         }
-        String[] columns = {COLUMN_ID, COLUMN_TYPE, COLUMN_IMAGE_URI, COLUMN_TIMESTAMP};
-        return db.query(TABLE_CLOTHES,
+        String[] columns = {COLUMN_ID, COLUMN_IMAGE_URI, COLUMN_TIMESTAMP};
+        return db.query(TABLE_ITEMS,
                 null,
-                COLUMN_TYPE + "=? AND " + COLUMN_CATEGORY + "=?",
+                 "=? AND " + COLUMN_CATEGORY + "=?",
                 new String[]{type, category},
                 null, null,
                 COLUMN_TIMESTAMP + " DESC");
@@ -133,14 +203,6 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
             placeholders.add(item);
         }
         return placeholders;
-    }
-    public long insertClothing(String type, String category, String imageUri) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TYPE, type);
-        values.put(COLUMN_CATEGORY, category);
-        values.put(COLUMN_IMAGE_URI, imageUri);
-        return db.insert(TABLE_CLOTHES, null, values);
     }
 
     /**
@@ -163,8 +225,8 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
             }
 
             // Delete all matching records from database
-            db.delete(TABLE_CLOTHES,
-                    COLUMN_TYPE + "=? AND " + COLUMN_CATEGORY + "=?",
+            db.delete(TABLE_ITEMS,
+                     "=? AND " + COLUMN_CATEGORY + "=?",
                     new String[]{type, category});
 
             db.setTransactionSuccessful();
@@ -187,7 +249,7 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String imageUri = null;
 
-        Cursor cursor = db.query(TABLE_CLOTHES,
+        Cursor cursor = db.query(TABLE_ITEMS,
                 new String[]{COLUMN_IMAGE_URI},
                 COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)},
@@ -234,6 +296,7 @@ public class DatabaseHelper1 extends SQLiteOpenHelper {
         }
         return false;
     }
+
 
 
 }
